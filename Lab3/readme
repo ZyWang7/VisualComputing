@@ -1,0 +1,45 @@
+Aim: Get start with OpenCV and to do some very simple image processing.
+1. load an image file into memory and display it in a window using OpenCV.
+2. threshold the image and display the result.
+
+
+4 images:
+(1) fundus.tif
+This is taken from a set of images used to train and test algorithms for recognising the
+effects of diabetes on the retina. The ima of the processing is to identify the blood
+vessels.
+
+(2) glaucoma.jpg
+This is an image taken from a set used to train ophthalmologists to recognise glaucoma.
+The aim of processing is to find the diffuse bright region towards the middle and
+the brighter area inside it.
+
+(3) optic nerve head.jpg
+This was an image captured by a bespoke device that gives a tightly frames image of the 
+optic nerve head. The aim of processing is to find the outlines of the large, slightly 
+bright area and the smaller brighter area inside it.
+
+(4) motorway.png
+This is an image taken off the internet of a motorway destination sign. Car manufacturers
+have deployed systems that read speed limit signs. A next step would be to read these
+signs. So the aim would be to find the white text.
+
+
+
+To run the file:
+$ g++ myOpencv.cpp -o test `pkg-config --cflags --libs opencv4`
+$ ./test
+-> you can change the 'test' to whatever you like.
+
+
+The image path is obtained by the user input at the terminal.
+Once the program checks that the path is valid, 2 windows will be displayed:
+1. THRESH_BINARY window with a trackbar and an initial threshold value of 0;
+2. THRESH_OTSU window.
+
+Press 'p' or 's' to save the THRESH_BINARY image with the current threshold.
+Press Esc to stop and exit the program.
+
+Note: 
+All other keys are ignored.
+All the file is saved in '.png'.
