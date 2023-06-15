@@ -1,0 +1,127 @@
+<html>
+    <head>
+        <style>
+            body { 
+                margin: 0;
+                overflow: hidden;
+            }
+        </style>
+    </head>
+    <body>
+  
+    </body>
+    <!-- <script type="module">
+        import * as THREE from "https://web.cs.manchester.ac.uk/three/three.js-master/build/three.module.js";
+        // Your Javascript will go here.
+    </script> -->
+    <script src="https://threejs.org/build/three.js"></script>
+
+    <script type="text/javascript">
+        // define what you see
+        const scene = new THREE.Scene();
+        // define the viewpoints
+        const camera  = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.z = 5;
+        // define the look and the feel of what is on the screen
+        const renderer = new THREE.WebGLRenderer();
+        renderer.setClearColor(0x000000, 1.0);
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+
+        // shader
+        function vertexShader() {
+            return `
+                vec4 p;
+                varying vec3 vposInterpolated;
+                void main() {
+                    p = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+                    gl_Position = p;
+                    vposInterpolated = p.xyz;
+                }
+            `;
+        }
+        function fragmentShader() {
+            return `
+                varying vec3 vposInterpolated;
+                void main() {
+                    gl_FragColor = vec4(vposInterpolated, 1.0);
+                }
+            `;
+        }
+
+        // create a cube and add to scene
+        function shaderCube() {
+            var geometry = new THREE.BoxGeometry( 2, 1, 1 );
+            var material = new THREE.ShaderMaterial({
+                vertexShader: vertexShader(),
+                fragmentShader: fragmentShader()
+            })
+            mesh = new THREE.Mesh( geometry, material );
+            scene.add( mesh );
+        }
+        shaderCube();
+
+        // animation
+        function animate() {
+            requestAnimationFrame( animate );
+            mesh.rotation.x += 0.011;
+            mesh.rotation.y += 0.013;
+            renderer.render( scene, camera );
+        };
+        animate();
+    </script>
+
+
+</html>
+
+
+<!-- 
+1. What is the purpose of the four arguments of the PerspectiveCamera function?
+A: it is the camera attributes, together these define the camera's viewing frustum.
+   the 1st is Field of view angle in degree, the angle between the upper and lower sides of the viewing frustum,
+                                             which determines what is visible in the visualization;
+   the 2nd is aspect ratio of the viewing window, control the proportions of Three.js elements;
+   the 3rd is near plane, distance to the near clipping plane along the Z axis,
+                          things that are closer than near value won't be rendered;
+   the last is far plane, which must be greater than the current value of near plane,
+                          distance to the far clipping plane,
+                          things that are further than far value won't be rendered.
+
+2. What happens when you increase or decrease the numerical values?
+A: 1) Field of view angle: increase -> view angle become wider -> cube become smaller;
+                           decrease -> view narrows -> cube become bigger;
+   2) aspect ratio: if the aspect ratio changes but the canvas remains unchanged, the rendering will be distorted.
+                    increase -> Objects become very narrow;
+                    decrease -> Objects become very wide and flat;
+   3) near plane: has no impact on the rendered view,
+                  if it is too big -> will not able to see the element, because it's been clipped from the scene;
+   4) far plane: has no impact on the rendered view,
+                 if it is too small -> will also not able to see the element;
+
+3. What is the purpose of the value of camera.position.z?
+A: the value represent the distance between the camera and the scene in the z-axis(z=0 plane).
+
+4. What happens when you increase or decrease the value?
+A: increase -> camera become closer -> bigger element;
+   decrease -> camera become further -> smaller element.
+
+5. What happens when the values of the arguments to renderer.setSize() are changed?
+A: change the renderer.setSize() will change the width and size to the area we want to fill up, our screen
+
+6. What is the effect of changing the three arguments of BoxGeometry called in shaderCube()?
+A: three arguments of BoxGeometry is:
+   1) width -> the length of the edges parallel to the X axis;
+   2) height -> the length of the edges parallel to the Y axis;
+   3) depth -> the length of the edges parallel to the Z axis;
+   changing these will changing the size of the cube.
+
+7. How will you speed up the cuboid’s motion?
+A: incerase the incremental values of the mesh.rotation.x and mesh.rotation.y;
+   e.g. mesh.rotation.x += 0.03;
+        mesh.rotation.y += 0.03;
+
+8. How would you change the cuboid’s colour?
+A: Change the value of gl_FragColor set by fragment shader;
+   e.g. by set gl_FragColor = vec4(1, 1, 1, 1.0); can set the cuboid’s color to white.
+
+-->
