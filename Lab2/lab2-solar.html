@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+	<head>
+        <title>Solar System</title>
+        <style>
+            body { 
+                margin: 0;
+                overflow: hidden;
+            }
+        </style>
+    </head>
+	<body>
+		<script type="module">
+            import * as THREE from 'https://web.cs.manchester.ac.uk/three/three.js-master/build/three.module.js';
+            import { OrbitControls } from  "https://web.cs.manchester.ac.uk/three/three.js-master/examples/jsm/controls/OrbitControls.js";
+			
+            var scene, camera, renderer, controls;
+            function init() {
+                // set scene. camera, and renderer
+                scene = new THREE.Scene();
+                camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 10000 );
+                camera.position.set(0, 30, 500);
+
+                renderer = new THREE.WebGLRenderer();
+                renderer.setClearColor(0x000000, 1.0);
+                renderer.setSize( window.innerWidth, window.innerHeight );
+                document.body.appendChild( renderer.domElement );
+
+                // change the observer’s viewpoint
+                controls = new OrbitControls( camera, renderer.domElement );
+                controls.autoRotate = true;
+                controls.autoRotateSpeed = 0.5;
+            }
+            init();
+
+            // create sun object -> a source of light
+            const sunGeometry = new THREE.SphereGeometry(109, 400, 200);
+            // read the texture for the sun object
+            const loader = new THREE.TextureLoader();
+            const sunTexture = loader.load('image/sun.jpeg');
+            const sunMaterial = new THREE.MeshStandardMaterial(
+                {
+                    emissiveMap: sunTexture,
+                    emissive: 0xffd700,
+                    emissiveIntensity: 1,
+                    wireframe: false
+                }
+            );
+            const sunMesh = new THREE.Mesh(sunGeometry, sunMaterial);
+            scene.add(sunMesh);
+
+            // create a point light source
+            const pointlight = new THREE.PointLight( 0xffffff );
+            pointlight.position.set( 0, 0, 0 );
+            scene.add( pointlight );
+
+            // creae a diffuse light
+            const diffuselight = new THREE.AmbientLight( 0x222222 );
+            scene.add( diffuselight );
+
+            // create earth object
+            const earthGeometry = new THREE.SphereGeometry(25, 50, 50);
+            const earthTexture = loader.load('image/earth.jpeg');
+            const earthMaterial = new THREE.MeshPhongMaterial(
+                {
+                    map: earthTexture
+                }
+            );
+            var earthMesh = new THREE.Mesh(earthGeometry, earthMaterial);
+
+            // create moon object
+            const moonGeometry = new THREE.SphereGeometry(5, 40, 20);
+            const moonTexture = loader.load('image/moon.jpeg');
+            const moonMaterial = new THREE.MeshPhongMaterial(
+                {
+                    map: moonTexture
+                }
+            );
+            var moonMesh = new THREE.Mesh(moonGeometry, moonMaterial);
+
+            moonMesh.position.set( 60, 0, 0 );
+
+            // group the earth and moon together
+            var earthSystem = new THREE.Group();
+            earthSystem.add( moonMesh );
+            earthSystem.add( earthMesh );
+            scene.add( earthSystem );
+
+
+            // create the ellipse and add to scene
+            const curve = new THREE.EllipseCurve(
+                0,  0,            // ax, aY
+                320, 320,           // xRadius, yRadius
+                0,  2 * Math.PI,  // aStartAngle, aEndAngle
+                false,            // aClockwise
+                0                 // aRotation
+            );
+            const epoints = curve.getPoints( 50 );
+            const egeometry = new THREE.BufferGeometry().setFromPoints( epoints );
+            const ematerial = new THREE.LineBasicMaterial( { color: 0xffffff } );
+            const ellipse = new THREE.Line( egeometry, ematerial );
+            ellipse.rotation.x = Math.PI*0.5;
+            scene.add( ellipse );
+
+			function animate() {
+				requestAnimationFrame( animate );
+
+                // get the time
+                var time = 0.00001 * performance.now();
+                var t = time % 1;
+
+                // set the position for earthSystem
+                var point = curve.getPoint(t);
+                earthSystem.position.x = point.x;
+                earthSystem.position.z = point.y;
+                // set the position for moon
+                moonMesh.position.x = Math.cos(time*80) * 60;
+                moonMesh.position.z = Math.sin(time*80) * 60;
+
+				controls.update();
+
+                // self rotation
+                earthMesh.rotation.y += 0.008;
+                moonMesh.rotation.y += 0.008;
+
+				renderer.render( scene, camera );
+			}
+
+			animate();
+		</script>
+	</body>
+</html>
